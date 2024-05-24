@@ -55,7 +55,7 @@ class FileStorage:
                 jo = json.load(f)
             for key in jo:
                 self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
-        except:
+        except BaseException:
             pass
 
     def delete(self, obj=None):
@@ -71,14 +71,17 @@ class FileStorage:
 
     def get(self, cls, id):
         """ retrieve one object """
+        objs = []
         for i in self.all(cls):
-            if i.id == id:
-                return i
+            objs.append(self.all(cls)[i])
+        for j in objs:
+            if j.id == id:
+                return j
         return None
 
     def count(self, cls=None):
         """ count the number of objects in storage """
-        num = 0
+        objs = []
         for i in self.all(cls):
-            num += 1
-        return num
+            objs.append(self.all(cls)[i])
+        return (len(objs))
