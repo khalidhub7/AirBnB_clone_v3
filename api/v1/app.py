@@ -12,8 +12,8 @@ access = CORS(app, resources={r'/*': {'origins': '0.0.0.0'}})
 
 
 @app.teardown_appcontext
-def fun1():
-    '''close'''
+def fun1(exception):
+    """Close the storage on teardown"""
     storage.close()
 
 
