@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """It's time to start the API!"""
-from flask import Flask
+from flask import Flask, jsonify
 from models import storage
 from api.v1.views import app_views
 from flask_cors import CORS
@@ -15,6 +15,13 @@ CORS(app, resources={r"/*": {"origins": "0.0.0.0"}})
 def close_storage(exception):
     """Close the storage on teardown."""
     storage.close()
+
+
+@app.error_handler(404)
+def err_handl(error):
+    return jsonify({
+        "error": "Not found"
+    })
 
 
 if __name__ == '__main__':
