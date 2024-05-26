@@ -17,7 +17,7 @@ def count_objs():
     classes = ["Amenity", "City", "Place", "Review", "State", "User"]
     data = {}
     for i in classes:
-        data[i.lower + 's'] = storage.count(i)
+        data[i.lower() + 's'] = storage.count(i)
     for j in data:
         if j == 'Amenity':
             j = 'amenities'
