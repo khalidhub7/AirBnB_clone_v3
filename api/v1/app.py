@@ -19,9 +19,9 @@ def close_storage(exception):
 
 @app.errorhandler(404)
 def err_handl(error):
-    return jsonify({
+    return jsonify({{
         "error": "Not found"
-    })
+    }})
 
 
 if __name__ == '__main__':
