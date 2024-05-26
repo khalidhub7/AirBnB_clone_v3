@@ -17,7 +17,7 @@ def close_storage(exception):
     storage.close()
 
 
-@app.error_handler(404)
+@app.errorhandler(404)
 def err_handl(error):
     return jsonify({
         "error": "Not found"
