@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 """ It’s time to start API! """
 from flask import Flask
-from flask_cors import CORS
 from models import storage
 from api.v1.views import app_views
+from flask_cors import CORS
 from os import getenv
 
 app = Flask(__name__)
