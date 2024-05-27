@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """It's time to start the API!"""
-from flask import Flask, jsonify
+from flask import Flask, jsonify, make_response
 from models import storage
 from api.v1.views import app_views
 from flask_cors import CORS
@@ -19,16 +19,13 @@ def close_storage(exception):
 
 @app.errorhandler(404)
 def err_handl(error):
-    """Handler for 404 errors."""
-    return jsonify({
+    """ handler for 404 errors """
+    return make_response(jsonify({
         "error": "Not found"
-    })
+    }))
 
 
 if __name__ == '__main__':
-    app.run(
-        host=getenv('HBNB_API_HOST', default='0.0.0.0'),
-        port=int(getenv('HBNB_API_PORT', default=5000)),
-        threaded=True
-    )
-
+    app.run(host=getenv('HBNB_API_HOST', default='0.0.0.0'),
+            port=int(getenv('HBNB_API_PORT', default=5000)),
+            threaded=True)
