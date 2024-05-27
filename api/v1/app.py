@@ -22,7 +22,7 @@ def err_handl(error):
     """ handler for 404 errors """
     return make_response(jsonify({
         "error": "Not found"
-    }))
+    }), 404)
 
 
 if __name__ == '__main__':
