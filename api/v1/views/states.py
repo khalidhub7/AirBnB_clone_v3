@@ -6,7 +6,7 @@ from api.v1.views import app_views
 from flask import request, jsonify, abort
 
 
-@app_views.route('/api/v1/states', methods=['GET'], strict_slashes=False)
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
 def all_states():
     """ return list of all_states """
     list_objs = []
@@ -15,7 +15,7 @@ def all_states():
     return jsonify(list_objs)
 
 
-@app_views.route('/api/v1/states/<state_id>', methods=['GET'])
+@app_views.route('/states/<state_id>', methods=['GET'])
 def get_one_obj(state_id):
     """ return 1 obj by id """
     obj = storage.get('State', state_id)
@@ -24,7 +24,7 @@ def get_one_obj(state_id):
     return jsonify(obj.to_dict())
 
 
-@app_views.route('/api/v1/states/<state_id>', methods=['DELETE'])
+@app_views.route('/states/<state_id>', methods=['DELETE'])
 def delete_obj(state_id):
     """ delete state obj """
     obj = storage.get('State', state_id)
@@ -35,7 +35,7 @@ def delete_obj(state_id):
     return jsonify({}), 200
 
 
-@app_views.route('/api/v1/states', methods=['POST'])
+@app_views.route('/states', methods=['POST'])
 def create_obj():
     """ create state obj """
     new = {}
@@ -45,12 +45,12 @@ def create_obj():
         if 'name' not in new:
             abort(400, description="Missing name")
         new_obj = State(**new)
-        new_obj.save
+        new_obj.save()
         return jsonify(new_obj.to_dict()), 201
     abort(400, description="Not a JSON")
 
 
-@app_views.route('/api/v1/states/<state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'])
 def update_obj(state_id):
     """ update state obj """
     if request.is_json():
