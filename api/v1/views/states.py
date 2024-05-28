@@ -1,47 +1,66 @@
 #!/usr/bin/python3
-"""  """
-from models import base_model #to dict
+""" States_RestFul API actions """
+from models.state import State
+from models import storage
 from api.v1.views import app_views
-from flask import request, not_found, jsonify, make_response
-from models import state
+from flask import request, jsonify, abort
 
-@app_views.route('/api/v1/states', methods=['GET'])
-def get_obj():
-    data = {}
-    if request.is_json():
-        for i, j in request.get_json().items():
-            data[i] = j
+
+@app_views.route('/api/v1/states', methods=['GET'], strict_slashes=False)
+def all_states():
+    """ return list of all_states """
     list_objs = []
-    for x in data:
-        list_objs.append(x)
-@app_views.route('/api/v1/states/<id>', methods=['GET'])
-def changes(id):
-    if id not in state.__dict__:
-        raise not_found
-@app_views.route('/api/v1/states/<id>', methods=['DELETE'])
-def changes_1(id):
-    if id not in state.__dict__:
-        raise not_found
-    return make_response(jsonify({}), 200)
+    for i in storage.all('State').values():
+        list_objs.append(i.to_dict())
+    return jsonify(list_objs)
+
+
+@app_views.route('/api/v1/states/<state_id>', methods=['GET'])
+def get_one_obj(state_id):
+    """ return 1 obj by id """
+    obj = storage.get('State', state_id)
+    if obj is None:
+        abort(404)
+    return jsonify(obj.to_dict())
+
+
+@app_views.route('/api/v1/states/<state_id>', methods=['DELETE'])
+def delete_obj(state_id):
+    """ delete state obj """
+    obj = storage.get('State', state_id)
+    if obj is None:
+        abort(404)
+    storage.delete(obj)
+    storage.save()
+    return jsonify({}), 200
+
+
 @app_views.route('/api/v1/states', methods=['POST'])
-def changes_2():
+def create_obj():
+    """ create state obj """
     new = {}
     if request.is_json():
         for i, j in request.get_json().items():
             new[i] = j
         if 'name' not in new:
-            raise 400, print('Missing name')
-        return new, 201
-    raise not_found, print("Not a JSON")
-@app_views.route('/api/v1/states/<id>', methods=['PUT'])
-def changes_3(id):
-    if id not in state.__dict__:
-        raise not_found
-    new = {}
+            abort(400, description="Missing name")
+        new_obj = State(**new)
+        new_obj.save
+        return jsonify(new_obj.to_dict()), 201
+    abort(400, description="Not a JSON")
+
+
+@app_views.route('/api/v1/states/<state_id>', methods=['PUT'])
+def update_obj(state_id):
+    """ update state obj """
     if request.is_json():
+        obj = storage.get('State', state_id)
+        if obj is None:
+            abort(404)
+        ignore_list = ['id', 'created_at', 'updated_at']
         for i, j in request.get_json().items():
-            new[i] = j
-        for x in new:
-            if x == 'name':
-                return new[x], 200
-    raise not_found, print("Not a JSON")
+            if i not in ignore_list:
+                setattr(obj, i, j)
+        obj.save()
+        return jsonify(obj.to_dict()), 200
+    abort(400, description="Not a JSON")
