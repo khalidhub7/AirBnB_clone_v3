@@ -16,7 +16,7 @@ def all_cities(state_id):
     if state_obj is None:
         abort(404)
     for i in state_obj.cities:
-        cities_objs.append(i.to_dict())
+        cities_objs.append(i.to_json())
     return jsonify(cities_objs)
 
 
@@ -27,7 +27,7 @@ def get_obj(city_id):
     obj = storage.get('City', city_id)
     if obj is None:
         abort(404)
-    return jsonify(obj.to_dict())
+    return jsonify(obj.to_json())
 
 
 @app_views.route('/cities/<city_id>', methods=['DELETE'], strict_slashes=False)
@@ -54,7 +54,9 @@ def create_obj(state_id):
     old['state_id'] = state_id
     new_obj = City(**old)
     new_obj.save()
-    return jsonify(new_obj.to_dict()), 201
+    resp = jsonify(new_obj.to_json())
+    resp.status_code = 201
+    return resp
 
 
 @app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
@@ -71,4 +73,4 @@ def update_obj(city_id):
         if i not in ignore_list:
             setattr(obj, i, j)
     obj.save()
-    return jsonify(obj.to_dict()), 200
+    return jsonify(obj.to_json()), 200
