@@ -1,75 +1,75 @@
+
 #!/usr/bin/python3
-""" cities_RestFul API actions """
-from models.city import City
-from api.v1.views import app_views, storage
+"""City objects that handles all default RESTFul API actions"""
+from api.v1.views import app_views
 from flask import jsonify, abort, request
+from models import storage
+from models.state import State
+from models.city import City
 
 
-@app_views.route('/states/<state_id>/cities', methods=['GET'], strict_slashes=False)
-def all_cities(state_id):
-    """Retrieves the list of all City from state
-    and return all cities in a state
-    """
-    cities_objs = []
-    state_obj = storage.get('State', state_id)
-    if state_obj is None:
+@app_views.route('/cities', methods=['GET'])
+def get_cities():
+    """Retrieves the list of all City objects"""
+    cities = [city.to_dict() for city in storage.all('City').values()]
+    return jsonify(cities)
+
+
+@app_views.route('/states/<state_id>/cities', methods=['GET'])
+def get_state_cities(state_id):
+    """Retrieves a cities from state object"""
+    state = storage.get('State', state_id)
+    if state is None:
         abort(404)
-    for i in state_obj.cities:
-        cities_objs.append(i.to_json())
-    return jsonify(cities_objs)
+    return jsonify([city.to_dict() for city in state.cities])
 
 
-@app_views.route('/cities/<city_id>', methods=['GET'], strict_slashes=False)
-def get_obj(city_id):
-    """Retrieves a City object_
-    """
-    obj = storage.get('City', city_id)
-    if obj is None:
+@app_views.route('/cities/<city_id>', methods=['GET'])
+def get_city(city_id):
+    """Retrieves a City object"""
+    city = storage.get('City', city_id)
+    if not city:
         abort(404)
-    return jsonify(obj.to_json())
+    return jsonify(city.to_dict())
 
 
-@app_views.route('/cities/<city_id>', methods=['DELETE'], strict_slashes=False)
-def delete_obj(city_id):
-    """ delete city obj """
-    obj = storage.get('City', city_id)
-    if obj is None:
+@app_views.route('/cities/<city_id>', methods=['PUT'])
+def update_city(city_id):
+    """update a City object"""
+    city = storage.get('City', city_id)
+    if city is None:
         abort(404)
-    storage.delete(obj)
+    if not request.get_json():
+        abort(400, description="Not a JSON")
+    for key, value in request.get_json().items():
+        if key not in ["id", "state_id", "created_at", "updated_at"]:
+            setattr(city, key, value)
+    city.save()
+    return jsonify(city.to_dict()), 200
+
+
+@app_views.route('/cities/<city_id>', methods=['DELETE'])
+def delete_city(city_id):
+    """delete a City object"""
+    city = storage.get('City', city_id)
+    if city is None:
+        abort(404)
+    storage.delete(city)
     storage.save()
     return jsonify({}), 200
 
 
-@app_views.route('/states/<state_id>/cities', methods=['POST'], strict_slashes=False)
-def create_obj(state_id):
-    """ create city obj """
-    old = request.get_json(silent=True)
-    if old is None:
+@app_views.route('/states/<state_id>/cities', methods=['POST'])
+def post_city(state_id):
+    """post a City object"""
+    state = storage.get('State', state_id)
+    if state is None:
+        abort(404)
+    if not request.get_json():
         abort(400, 'Not a JSON')
-    if 'name' not in old:
+    if 'name' not in request.get_json():
         abort(400, 'Missing name')
-    if not storage.get('State', state_id):
-        abort(404)
-    old['state_id'] = state_id
-    new_obj = City(**old)
-    new_obj.save()
-    resp = jsonify(new_obj.to_json())
-    resp.status_code = 201
-    return resp
+    new_city = City(state_id=state.id, **request.get_json())
+    new_city.save()
+    return jsonify(new_city.to_dict()), 201
 
-
-@app_views.route('/cities/<city_id>', methods=['PUT'], strict_slashes=False)
-def update_obj(city_id):
-    """ update city obj """
-    old = request.get_json(silent=True)
-    if old is None:
-        abort(400, 'Not a JSON')
-    ignore_list = ['id', 'state_id', 'created_at', 'updated_at']
-    obj = storage.get('City', city_id)
-    if obj is None:
-        abort(404)
-    for i, j in old.items():
-        if i not in ignore_list:
-            setattr(obj, i, j)
-    obj.save()
-    return jsonify(obj.to_json()), 200
