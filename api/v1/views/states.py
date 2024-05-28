@@ -18,7 +18,7 @@ def all_states():
 @app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def get_one_obj(state_id):
     """ return 1 obj by id """
-    obj = storage.get('State', state_id)
+    obj = storage.get('State', str(state_id))
     if obj is None:
         abort(404)
     if obj is not None:
