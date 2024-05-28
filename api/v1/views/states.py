@@ -6,7 +6,7 @@ from api.v1.views import app_views
 from flask import jsonify, abort, request
 
 
-@app_views.route('/states', methods=['GET'])
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
 def all_states():
     """ return list of all_states """
     list_objs = []
@@ -15,31 +15,33 @@ def all_states():
     return jsonify(list_objs)
 
 
-@app_views.route('/states/<state_id>', methods=['GET'])
+@app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def get_one_obj(state_id):
     """ return 1 obj by id """
     obj = storage.get('State', state_id)
     if obj is None:
         abort(404)
-    return jsonify(obj.to_dict())
+    if obj is not None:
+        return jsonify(obj.to_dict())
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'])
+@app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
 def delete_obj(state_id):
     """ delete state obj """
     obj = storage.get('State', state_id)
     if obj is None:
         abort(404)
-    storage.delete(obj)
-    storage.save()
-    return jsonify({}), 200
+    if obj is not None:
+        storage.delete(obj)
+        storage.save()
+        return jsonify({}), 200
 
 
-@app_views.route('/states', methods=['POST'])
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_obj():
     """ create state obj """
     new = {}
-    if request.is_json():
+    if request.is_json:
         for i, j in request.get_json().items():
             new[i] = j
         if 'name' not in new:
@@ -50,17 +52,18 @@ def create_obj():
     abort(400, description="Not a JSON")
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def update_obj(state_id):
     """ update state obj """
     if request.is_json():
         obj = storage.get('State', state_id)
         if obj is None:
             abort(404)
-        ignore_list = ['id', 'created_at', 'updated_at']
-        for i, j in request.get_json().items():
-            if i not in ignore_list:
-                setattr(obj, i, j)
-        obj.save()
-        return jsonify(obj.to_dict()), 200
+        if obj is not None:
+            ignore_list = ['id', 'created_at', 'updated_at']
+            for i, j in request.get_json().items():
+                if i not in ignore_list:
+                    setattr(obj, i, j)
+            obj.save()
+            return jsonify(obj.to_dict()), 200
     abort(400, description="Not a JSON")
