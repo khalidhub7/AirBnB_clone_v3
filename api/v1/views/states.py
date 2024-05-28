@@ -22,7 +22,7 @@ def get_one_obj(state_id):
     if obj is None:
         abort(404)
     if obj is not None:
-        return jsonify(obj.to_json())
+        return jsonify(obj.to_dict())
 
 
 @app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
