@@ -33,22 +33,20 @@ def delete_obj(state_id):
         abort(404)
     storage.delete(obj)
     storage.save()
-    return jsonify({})
+    return jsonify({}), 200
 
 
 @app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_obj():
     """ create state obj """
-    new = {}
-    if request.is_json:
-        for i, j in request.get_json().items():
-            new[i] = j
-        if 'name' not in new:
-            abort(400, description="Missing name")
-        new_obj = State(**new)
-        new_obj.save()
-        return jsonify(new_obj.to_dict()), 201
-    abort(400, description="Not a JSON")
+    old = request.get_json(silent=True)
+    if old is None:
+        abort(400, description="Not a JSON")
+    if 'name' not in old:
+        abort(400, description="Missing name")
+    new_obj = State(**old)
+    new_obj.save()
+    return jsonify(new_obj.to_dict()), 201
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
