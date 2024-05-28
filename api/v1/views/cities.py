@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 """ cities_RestFul API actions """
-from models import storage
 from models.city import City
-from api.v1.views import app_views
+from api.v1.views import app_views, storage
 from flask import jsonify, abort, request
 
 
