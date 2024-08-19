@@ -6,14 +6,14 @@ from models.state import State
 from models import storage
 
 
-@app_views.route('/states/', methods=['GET'])
-def all_state():
-    """ List all State objects """
+@app_views.route('/states', methods=['GET'], strict_slashes=False)
+def all_states():
+    """ Return list of all State objects """
     states_list = [state.to_dict() for state in storage.all(State).values()]
     return jsonify(states_list)
 
 
-@app_views.route('/states/<state_id>', methods=['GET'])
+@app_views.route('/states/<state_id>', methods=['GET'], strict_slashes=False)
 def get_state(state_id):
     """ Retrieve State object by id """
     state = storage.get(State, state_id)
@@ -22,7 +22,7 @@ def get_state(state_id):
     abort(404)
 
 
-@app_views.route('/states/<state_id>', methods=['DELETE'])
+@app_views.route('/states/<state_id>', methods=['DELETE'], strict_slashes=False)
 def delete_state(state_id):
     """ Delete State object by id """
     state = storage.get(State, state_id)
@@ -33,15 +33,15 @@ def delete_state(state_id):
     abort(404)
 
 
-@app_views.route('/states/', methods=['POST'])
+@app_views.route('/states', methods=['POST'], strict_slashes=False)
 def create_state():
     """ Create a new State object """
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
     if not data:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, description="Not a JSON")
     if 'name' not in data:
-        return jsonify({"error": "Missing name"}), 400
+        abort(400, description="Missing name")
 
     new_state = State(**data)
     storage.new(new_state)
@@ -49,21 +49,21 @@ def create_state():
     return jsonify(new_state.to_dict()), 201
 
 
-@app_views.route('/states/<state_id>', methods=['PUT'])
+@app_views.route('/states/<state_id>', methods=['PUT'], strict_slashes=False)
 def update_state(state_id):
     """ Update State object by id """
-    data = request.get_json()
+    data = request.get_json(silent=True)
 
     if not data:
-        return jsonify({"error": "Not a JSON"}), 400
+        abort(400, description="Not a JSON")
 
     state = storage.get(State, state_id)
     if not state:
         abort(404)
 
-    if 'name' in data:
-        state.name = data['name']
-        storage.save()
-        return jsonify(state.to_dict()), 200
-
-    return jsonify({"error": "Missing name"}), 400
+    ignore_list = ['id', 'created_at', 'updated_at']
+    for key, value in data.items():
+        if key not in ignore_list:
+            setattr(state, key, value)
+    storage.save()
+    return jsonify(state.to_dict()), 200
