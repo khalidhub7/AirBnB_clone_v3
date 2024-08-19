@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """ state CRUD """
-from flask import jsonify
+from flask import jsonify, abort
 from api.v1.views import app_views
 
 
@@ -25,7 +25,7 @@ def all_state_id(state_id):
         if i.id == state_id:
             states_list.append(i.to_dict())
         else:
-            return jsonify({"error": "Not found"}), 404
+            abort(404)
     return jsonify(states_list)
 
 
@@ -41,7 +41,7 @@ def delete_state_id(state_id):
         storage.delete(state)
         storage.save()
         return jsonify({}), 200
-    return jsonify({"error": "Not found"}), 404
+    abort(404)
 
 
 @app_views.route('/states/', methods=['POST'])
@@ -81,4 +81,4 @@ def put_state(state_id):
         state.name = data['name']  # Update only the name
         storage.save()
         return jsonify(state.to_dict()), 200
-    return jsonify({"error": "Not found"}), 404
+    abort(404)
