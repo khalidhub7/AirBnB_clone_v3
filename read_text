@@ -1,0 +1,11 @@
+delete
+
+curl -X DELETE http://127.0.0.1:5000/api/v1/states/dcbba105-2ad1-4f01-b2fb-3674e355f3c3
+
+post
+
+curl -X POST http://127.0.0.1:5000/api/v1/states/ -H "Content-Type: application/json" -d '{"name": "belfaa"}' -vvv
+
+put
+
+curl -X PUT http://127.0.0.1:5000/api/v1/states/dcbba105-2ad1-4f01-b2fb-3674e355f3c3 -H "Content-Type: application/json" -d '{"name": "belfaa is so cool"}'
