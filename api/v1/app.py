@@ -18,8 +18,7 @@ def close(arg):
 @app.errorhandler(404)
 def not_found(arg):
     """ handler for 404 """
-    data = {"error": "Not found"}
-    return flask.jsonify(data), 404
+    return flask.jsonify({"error": "Not found"}), 404
 
 
 if __name__ == "__main__":
