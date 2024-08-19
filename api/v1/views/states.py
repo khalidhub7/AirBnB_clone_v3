@@ -14,7 +14,7 @@ def all_state():
 
 
 @app_views.route('/states/<state_id>', methods=['GET'])
-def all_state_id(state_id):
+def get_state(state_id):
     """ Retrieve State object by id """
     state = storage.get(State, state_id)
     if state:
@@ -23,7 +23,7 @@ def all_state_id(state_id):
 
 
 @app_views.route('/states/<state_id>', methods=['DELETE'])
-def delete_state_id(state_id):
+def delete_state(state_id):
     """ Delete State object by id """
     state = storage.get(State, state_id)
     if state:
@@ -34,7 +34,7 @@ def delete_state_id(state_id):
 
 
 @app_views.route('/states/', methods=['POST'])
-def post_state():
+def create_state():
     """ Create a new State object """
     data = request.get_json()
 
@@ -50,7 +50,7 @@ def post_state():
 
 
 @app_views.route('/states/<state_id>', methods=['PUT'])
-def put_state(state_id):
+def update_state(state_id):
     """ Update State object by id """
     data = request.get_json()
 
