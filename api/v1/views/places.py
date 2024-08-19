@@ -19,7 +19,8 @@ def get_places(city_id):
     return jsonify(places)
 
 
-@app_views.route('/places/<place_id>', methods=['GET'], strict_slashes=False)
+@app_views.route('/places/<place_id>',
+                 methods=['GET'], strict_slashes=False)
 def get_place(place_id):
     """ Retrieve a Place object """
     place = storage.get(Place, place_id)
@@ -29,8 +30,7 @@ def get_place(place_id):
 
 
 @app_views.route('/places/<place_id>',
-                 methods=['DELETE'],
-                 strict_slashes=False)
+                 methods=['DELETE'], strict_slashes=False)
 def delete_place(place_id):
     """ Delete a Place object """
     place = storage.get(Place, place_id)
@@ -66,7 +66,8 @@ def create_place(city_id):
     return jsonify(place.to_dict()), 201
 
 
-@app_views.route('/places/<place_id>', methods=['PUT'], strict_slashes=False)
+@app_views.route('/places/<place_id>',
+                 methods=['PUT'], strict_slashes=False)
 def update_place(place_id):
     """ Update a Place object by id """
     data = request.get_json(silent=True)
@@ -93,8 +94,7 @@ def places_search():
 
     obj = request.get_json()
     if not obj:
-        return jsonify([place.to_dict()
-                       for place in storage.all(Place).values()])
+        return jsonify([place.to_dict() for place in storage.all(Place).values()])
 
     places = []
     amenities = []
@@ -120,5 +120,4 @@ def places_search():
                 if all(amenity.id in amenities for amenity in place.amenities):
                     places.append(place.id)
 
-    return jsonify([storage.get(Place, place_id).to_dict()
-                   for place_id in places])
+    return jsonify([storage.get(Place, place_id).to_dict() for place_id in places])
